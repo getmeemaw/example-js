@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image'
-import Meemaw from 'meemaw'
+import Meemaw from '@getmeemaw/meemaw-js'
 import { supabase } from './supabaseClient'
 import { useState, useEffect } from 'react'
 import Web3 from 'web3'
