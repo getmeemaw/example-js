@@ -1,0 +1,8 @@
+devMode = true
+port = 8421
+dbConnectionUrl = 'postgresql://meemaw:meemaw@db:5432/meemaw'
+clientOrigin = 'http://localhost:3000'
+authType = 'supabase'
+authServerUrl = 'http://localhost:9090'
+supabaseUrl = ''
+supabaseApiKey = ''
