@@ -131,7 +131,7 @@ export default function Tx() {
                 </div>
             ) : (
                 <div>
-                    <p>Here is your wallet address: {address}</p>
+                    <p>Here is your wallet address (public key): {address}</p>
                     <p>Make sure to send it some gas before sending a transaction.</p>
                     <input type="text" placeholder="Recipient" value={recipient} onChange={(e) => setRecipient(e.target.value)} />
                     <button disabled={loading} onClick={handleSendTx}>
