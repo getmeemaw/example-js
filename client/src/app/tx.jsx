@@ -11,6 +11,8 @@ export default function Tx() {
     const [wallet, setWallet] = useState(false)
     const [address, setAddress] = useState('')
     const [recipient, setRecipient] = useState('');
+    const [privateKey, setPrivateKey] = useState('');
+    const [warning, setWarning] = useState('');
 
 
     useEffect(() => {
@@ -79,7 +81,7 @@ export default function Tx() {
 
         console.log("recipient:", recipient);
 
-        const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8421/rpc"));
+        const web3 = new Web3(new Web3.providers.HttpProvider(""));
             
         const chainId = await web3.eth.getChainId();
         const nonce = await web3.eth.getTransactionCount(wallet.From())
@@ -106,6 +108,32 @@ export default function Tx() {
 
         setLoading(false)
         alert("Transaction sent!")
+    };
+
+    const handleRecover = async () => {
+        setLoading(true)
+
+        let token;
+        try {
+            token = await getAccessToken()
+        } catch (error) {
+            throw error;
+        }
+
+        const meemaw = await Meemaw.init('http://localhost:8421');
+        const wallet = await meemaw.GetWallet(token);
+
+        console.log("meemaw:", meemaw);
+        console.log("wallet:", wallet);
+
+        const privateKey = await wallet.Recover();
+
+        console.log("privateKey end:", privateKey);
+
+        setPrivateKey(privateKey);
+        setWarning("You can now import the private key into your wallet of choice. Be careful though, anyone with this private key can spend your funds. Before, both the client and the server needed to collaborate to sign a transaction, adding an inherent level of security.");
+
+        setLoading(false)
     };
 
     return (
@@ -137,6 +165,17 @@ export default function Tx() {
                     <button disabled={loading} onClick={handleSendTx}>
                         {loading ? <span>Loading</span> : <span>Send Transaction</span>}
                     </button>
+                    <div style={{marginTop: '50px'}}>
+                        <p>Until now, no private key was ever created for this MPC wallet, it just doesn't exist. Clicking the button will send the client share to the server, which will then combine it with the server share to create the private key.</p>
+                        <p>
+                            <button disabled={loading} onClick={handleRecover}>
+                                {loading ? <span>Loading</span> : <span>Recover Private Key</span>}
+                            </button>
+                        </p>
+                        <p>{privateKey}</p>
+                        <p>{warning}</p>
+                        
+                    </div>
                 </div>
             )}
         </div>
