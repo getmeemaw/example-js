@@ -298,7 +298,7 @@ export default function Tx() {
                                 </div>
                                 <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
                                     <h3>Export private key</h3>
-                                    <p>Until now, no private key was ever created for this MPC wallet, it just doesn't exist. Clicking the button will call wallet.Recover() to send the client share to the server, which will then combine it with the server share to create the private key.</p>
+                                    <p>Until now, no private key was ever created for this MPC wallet, it just doesn't exist. Clicking the button will call wallet.Export() to send the client share to the server, which will then combine it with the server share to create the private key.</p>
                                     <button disabled={loading} onClick={handleExport}>
                                         {loading ? <span>Loading</span> : <span>Export Private Key</span>}
                                     </button>
