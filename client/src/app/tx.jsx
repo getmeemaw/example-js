@@ -12,7 +12,10 @@ export default function Tx() {
     const [address, setAddress] = useState('')
     const [recipient, setRecipient] = useState('');
     const [privateKey, setPrivateKey] = useState('');
+    const [backup, setBackup] = useState('');
     const [warning, setWarning] = useState('');
+
+    const [showSections, setShowSections] = useState(false);
 
 
     useEffect(() => {
@@ -54,7 +57,11 @@ export default function Tx() {
         }
 
         const meemaw = await Meemaw.init('http://localhost:8421');
-        const wallet = await meemaw.GetWallet(token);
+        const wallet = await meemaw.GetWallet(token, function(deviceName) {
+            alert('RegisterDevice started');
+        }, function(deviceName) {
+            alert('RegisterDevice finished');
+        });
 
         console.log("meemaw:", meemaw);
         console.log("wallet:", wallet);
@@ -63,7 +70,37 @@ export default function Tx() {
         window.location.reload(false);
     };
 
-    const handleSendTx = async () => {
+    const handleGetWalletFromBackup = async () => {
+        setLoading(true)
+
+        var backup = prompt("Please enter your backup:", "");
+
+        if (backup !== null) {
+
+            let token;
+            try {
+                token = await getAccessToken()
+            } catch (error) {
+                throw error;
+            }
+
+            const meemaw = await Meemaw.init('http://localhost:8421');
+            const wallet = await meemaw.GetWalletFromBackup(token, backup);
+
+            console.log("meemaw:", meemaw);
+            console.log("wallet:", wallet);
+
+            setLoading(false)
+            window.location.reload(false);
+
+        } else {
+            console.log("no prompt...")
+        }
+    };
+
+
+
+    const handleBackup = async () => {
         setLoading(true)
 
         let token;
@@ -79,9 +116,36 @@ export default function Tx() {
         console.log("meemaw:", meemaw);
         console.log("wallet:", wallet);
 
+        const backup = await wallet.Backup();
+
+        console.log("backup:", backup);
+
+        setBackup(backup);
+
+        setLoading(false)
+
+    };
+
+    const handleSendTx = async () => {
+        setLoading(true)
+
+        let token;
+        try {
+            token = await getAccessToken()
+        } catch (error) {
+            throw error;
+        }
+
+        const meemaw = await Meemaw.init('http://localhost:8421');
+        // const meemaw = await Meemaw.init('https://test.localhost');
+        const wallet = await meemaw.GetWallet(token);
+
+        console.log("meemaw:", meemaw);
+        console.log("wallet:", wallet);
+
         console.log("recipient:", recipient);
 
-        const web3 = new Web3(new Web3.providers.HttpProvider(""));
+        const web3 = new Web3(new Web3.providers.HttpProvider("https://eth-sepolia.g.alchemy.com/v2/e7OD1JhrtDJlDEowtp7L6cSZNbgmbjUf"));
             
         const chainId = await web3.eth.getChainId();
         const nonce = await web3.eth.getTransactionCount(wallet.From())
@@ -110,7 +174,7 @@ export default function Tx() {
         alert("Transaction sent!")
     };
 
-    const handleRecover = async () => {
+    const handleExport = async () => {
         setLoading(true)
 
         let token;
@@ -126,12 +190,35 @@ export default function Tx() {
         console.log("meemaw:", meemaw);
         console.log("wallet:", wallet);
 
-        const privateKey = await wallet.Recover();
+        const privateKey = await wallet.Export();
 
         console.log("privateKey end:", privateKey);
 
         setPrivateKey(privateKey);
         setWarning("You can now import the private key into your wallet of choice. Be careful though, anyone with this private key can spend your funds. Before, both the client and the server needed to collaborate to sign a transaction, adding an inherent level of security.");
+
+        setLoading(false)
+    };
+
+    const handleAcceptDevice = async () => {
+        setLoading(true)
+
+        let token;
+        try {
+            token = await getAccessToken()
+        } catch (error) {
+            throw error;
+        }
+
+        const meemaw = await Meemaw.init('http://localhost:8421');
+        const wallet = await meemaw.GetWallet(token);
+
+        console.log("meemaw:", meemaw);
+        console.log("wallet:", wallet);
+
+        await wallet.AcceptDevice();
+
+        console.log("AcceptDevice done");
 
         setLoading(false)
     };
@@ -156,6 +243,14 @@ export default function Tx() {
                     <button disabled={loading} onClick={handleGenerateWallet}>
                         {loading ? <span>Loading</span> : <span>Generate Wallet</span>}
                     </button>
+
+                    <a 
+                        href="#" 
+                        onClick={handleGetWalletFromBackup}
+                        style={{ display: 'block', marginTop: '10px' }}
+                    >
+                        {loading ? <span>Loading</span> : <span>Generate Wallet from backup</span>}
+                    </a>
                 </div>
             ) : (
                 <div>
@@ -165,16 +260,53 @@ export default function Tx() {
                     <button disabled={loading} onClick={handleSendTx}>
                         {loading ? <span>Loading</span> : <span>Send Transaction</span>}
                     </button>
-                    <div style={{marginTop: '50px'}}>
-                        <p>Until now, no private key was ever created for this MPC wallet, it just doesn't exist. Clicking the button will send the client share to the server, which will then combine it with the server share to create the private key.</p>
-                        <p>
-                            <button disabled={loading} onClick={handleRecover}>
-                                {loading ? <span>Loading</span> : <span>Recover Private Key</span>}
-                            </button>
-                        </p>
-                        <p>{privateKey}</p>
-                        <p>{warning}</p>
-                        
+                    <div style={{ marginTop: '30px' }}>
+                        <div 
+                            onClick={() => setShowSections(!showSections)} 
+                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        >
+
+                            <span style={{ marginRight: '8px', transform: showSections ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.3s' }}>
+                                &gt;
+                            </span>
+                            <span>Show Options</span>
+                        </div>
+                        {showSections && (
+                            <div>
+                                <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
+                                    <h3>Multi-device</h3>
+                                    <p>
+                                        If your user already created a wallet using device1, calling meemaw.GetWallet() on device2 will automatically start the multi-device process. 
+                                        You will need to call wallet.AcceptDevice() from device1 in order to accept the new device.
+                                        Try it by opening this page in another browser, logging in then clicking "Generate Wallet". Then come back here and click "Accept Device".
+                                    </p>
+                                    <button disabled={loading} onClick={handleAcceptDevice}>
+                                        {loading ? <span>Loading</span> : <span>Accept Device</span>}
+                                    </button>
+                                </div>
+                                <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
+                                    <h3>Backup</h3>
+                                    <p>
+                                        It is easy to create a backup file for users. 
+                                        Behind the scenes, it uses multi-device for true redundancy.
+                                        Try it by clicking "Backup", then use the text in another browser using "Generate wallet from backup" after login.
+                                    </p>
+                                    <button disabled={loading} onClick={handleBackup}>
+                                        {loading ? <span>Loading</span> : <span>Backup</span>}
+                                    </button>
+                                    <div style={{ width: '700px', wordWrap: 'break-word', marginTop: '10px' }}>{backup}</div>
+                                </div>
+                                <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
+                                    <h3>Export private key</h3>
+                                    <p>Until now, no private key was ever created for this MPC wallet, it just doesn't exist. Clicking the button will call wallet.Recover() to send the client share to the server, which will then combine it with the server share to create the private key.</p>
+                                    <button disabled={loading} onClick={handleExport}>
+                                        {loading ? <span>Loading</span> : <span>Export Private Key</span>}
+                                    </button>
+                                    <p>{privateKey}</p>
+                                    <p>{warning}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
