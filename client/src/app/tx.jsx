@@ -57,9 +57,9 @@ export default function Tx() {
         }
 
         const meemaw = await Meemaw.init('http://localhost:8421');
-        const wallet = await meemaw.GetWallet(token, function(deviceName) {
+        const wallet = await meemaw.GetWallet(token, function() {
             alert('RegisterDevice started');
-        }, function(deviceName) {
+        }, function() {
             alert('RegisterDevice finished');
         });
 
