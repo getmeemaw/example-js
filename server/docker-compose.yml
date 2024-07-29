@@ -38,7 +38,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./config.toml:/config.toml
+      - ./.env:/.env
 
 networks:
   meemaw:
