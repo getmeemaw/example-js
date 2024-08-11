@@ -40,6 +40,8 @@ services:
     volumes:
       - ./.env:/.env
       - ./config.toml:/config.toml
+    #extra_hosts: #add this if you see this error in `docker logs meemaw_app`. err: Get "http://localhost:8000/auth/v1/user": dial tcp [::1]:8000: connect: connection refused
+      #- "localhost:YOUR_IP_ADDRESS" #run `ip a` to find it
 
 networks:
   meemaw:
