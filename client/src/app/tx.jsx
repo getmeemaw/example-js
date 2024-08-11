@@ -223,6 +223,10 @@ export default function Tx() {
         setLoading(false)
     };
 
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+    }
+
     return (
         <main>
         <div>
@@ -310,6 +314,13 @@ export default function Tx() {
                     </div>
                 </div>
             )}
+            <a 
+                href="#" 
+                onClick={handleSignOut}
+                style={{ display: 'block', marginTop: '10px' }}
+            >
+                <span>Sign Out</span>
+            </a>
         </div>
         </main>
     )
