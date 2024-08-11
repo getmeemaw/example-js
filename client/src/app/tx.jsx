@@ -224,7 +224,19 @@ export default function Tx() {
     };
 
     const handleSignOut = async () => {
-        await supabase.auth.signOut();
+        // Remove all localStorage cache
+        Object.keys(localStorage)
+            .filter(
+                key=>
+                    key.indexOf('address-') === 0 || 
+                    key.indexOf('dkgResult-') === 0 || 
+                    key.indexOf('metadata-') === 0
+            )
+            .forEach(
+                key=>localStorage.removeItem(key)
+            );
+        
+        await supabase.auth.signOut(); // Sign-out from supabase
     }
 
     return (
