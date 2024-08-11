@@ -39,6 +39,7 @@ services:
       - db
     volumes:
       - ./.env:/.env
+      - ./config.toml:/config.toml
 
 networks:
   meemaw:
