@@ -15,6 +15,8 @@ export default function Tx() {
     const [backup, setBackup] = useState('');
     const [warning, setWarning] = useState('');
 
+    const [meemaw, setMeemaw] = useState(null);
+
     const [showSections, setShowSections] = useState(false);
 
 
@@ -31,6 +33,21 @@ export default function Tx() {
             // /!\ Does not work if there are multiple accounts on the same computer ! Needs an update
             // => get userId from Supabase, then get related wallet.
         }
+
+        const initializeMeemaw = async () => {
+            try {
+                const meemaw = await Meemaw.init('http://localhost:8421/test');
+                // const meemaw = await Meemaw.init('https://getmeemaw.co/YOUR-CUSTOM-PATH', 'https://getmeemaw.com/static/1.2.0.meemaw.wasm');
+
+                setMeemaw(meemaw);
+                console.log("Meemaw properly initialised.")
+            } catch (error) {
+                console.error('Error initializing Meemaw:', error);
+            }
+        };
+
+        initializeMeemaw();
+
     }, [])
 
     const getAccessToken = async () => {
@@ -56,7 +73,11 @@ export default function Tx() {
             throw error;
         }
 
-        const meemaw = await Meemaw.init('http://localhost:8421');
+        if (!meemaw) {
+            console.log('Meemaw is not initialized yet.');
+            return;
+        }
+
         const wallet = await meemaw.GetWallet(token, function() {
             alert('RegisterDevice started');
         }, function() {
@@ -84,7 +105,11 @@ export default function Tx() {
                 throw error;
             }
 
-            const meemaw = await Meemaw.init('http://localhost:8421');
+            if (!meemaw) {
+                console.log('Meemaw is not initialized yet.');
+                return;
+            }
+
             const wallet = await meemaw.GetWalletFromBackup(token, backup);
 
             console.log("meemaw:", meemaw);
@@ -110,7 +135,11 @@ export default function Tx() {
             throw error;
         }
 
-        const meemaw = await Meemaw.init('http://localhost:8421');
+        if (!meemaw) {
+            console.log('Meemaw is not initialized yet.');
+            return;
+        }
+
         const wallet = await meemaw.GetWallet(token);
 
         console.log("meemaw:", meemaw);
@@ -136,8 +165,11 @@ export default function Tx() {
             throw error;
         }
 
-        const meemaw = await Meemaw.init('http://localhost:8421');
-        // const meemaw = await Meemaw.init('https://test.localhost');
+        if (!meemaw) {
+            console.log('Meemaw is not initialized yet.');
+            return;
+        }
+
         const wallet = await meemaw.GetWallet(token);
 
         console.log("meemaw:", meemaw);
@@ -184,7 +216,11 @@ export default function Tx() {
             throw error;
         }
 
-        const meemaw = await Meemaw.init('http://localhost:8421');
+        if (!meemaw) {
+            console.log('Meemaw is not initialized yet.');
+            return;
+        }
+
         const wallet = await meemaw.GetWallet(token);
 
         console.log("meemaw:", meemaw);
@@ -210,7 +246,11 @@ export default function Tx() {
             throw error;
         }
 
-        const meemaw = await Meemaw.init('http://localhost:8421');
+        if (!meemaw) {
+            console.log('Meemaw is not initialized yet.');
+            return;
+        }
+
         const wallet = await meemaw.GetWallet(token);
 
         console.log("meemaw:", meemaw);
@@ -240,8 +280,8 @@ export default function Tx() {
             {!wallet ? (
                 <div>
                     <p>You don't have a wallet yet.</p>
-                    <button disabled={loading} onClick={handleGenerateWallet}>
-                        {loading ? <span>Loading</span> : <span>Generate Wallet</span>}
+                    <button disabled={loading || !meemaw} onClick={handleGenerateWallet}>
+                        {loading ? <span>Loading</span> : !meemaw ? <span>Initialising...</span> : <span>Generate Wallet</span>}
                     </button>
 
                     <a 
@@ -249,7 +289,7 @@ export default function Tx() {
                         onClick={handleGetWalletFromBackup}
                         style={{ display: 'block', marginTop: '10px' }}
                     >
-                        {loading ? <span>Loading</span> : <span>Generate Wallet from backup</span>}
+                        {loading ? <span>Loading</span> : !meemaw ? <span>Initialising...</span> : <span>Generate Wallet from backup</span>}
                     </a>
                 </div>
             ) : (
@@ -257,8 +297,8 @@ export default function Tx() {
                     <p>Here is your wallet address (public key): {address}</p>
                     <p>Make sure to send it some gas before sending a transaction.</p>
                     <input type="text" placeholder="Recipient" value={recipient} onChange={(e) => setRecipient(e.target.value)} />
-                    <button disabled={loading} onClick={handleSendTx}>
-                        {loading ? <span>Loading</span> : <span>Send Transaction</span>}
+                    <button disabled={loading || !meemaw} onClick={handleSendTx}>
+                        {loading ? <span>Loading</span> : !meemaw ? <span>Initialising...</span> : <span>Send Transaction</span>}
                     </button>
                     <div style={{ marginTop: '30px' }}>
                         <div 
@@ -280,8 +320,8 @@ export default function Tx() {
                                         You will need to call wallet.AcceptDevice() from device1 in order to accept the new device.
                                         Try it by opening this page in another browser, logging in then clicking "Generate Wallet". Then come back here and click "Accept Device".
                                     </p>
-                                    <button disabled={loading} onClick={handleAcceptDevice}>
-                                        {loading ? <span>Loading</span> : <span>Accept Device</span>}
+                                    <button disabled={loading || !meemaw} onClick={handleAcceptDevice}>
+                                        {loading ? <span>Loading</span> : !meemaw ? <span>Initialising...</span> : <span>Accept Device</span>}
                                     </button>
                                 </div>
                                 <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
@@ -291,16 +331,16 @@ export default function Tx() {
                                         Behind the scenes, it uses multi-device for true redundancy.
                                         Try it by clicking "Backup", then use the text in another browser using "Generate wallet from backup" after login.
                                     </p>
-                                    <button disabled={loading} onClick={handleBackup}>
-                                        {loading ? <span>Loading</span> : <span>Backup</span>}
+                                    <button disabled={loading || !meemaw} onClick={handleBackup}>
+                                        {loading ? <span>Loading</span> : !meemaw ? <span>Initialising...</span> : <span>Backup</span>}
                                     </button>
                                     <div style={{ width: '700px', wordWrap: 'break-word', marginTop: '10px' }}>{backup}</div>
                                 </div>
                                 <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
                                     <h3>Export private key</h3>
                                     <p>Until now, no private key was ever created for this MPC wallet, it just doesn't exist. Clicking the button will call wallet.Export() to send the client share to the server, which will then combine it with the server share to create the private key.</p>
-                                    <button disabled={loading} onClick={handleExport}>
-                                        {loading ? <span>Loading</span> : <span>Export Private Key</span>}
+                                    <button disabled={loading || !meemaw} onClick={handleExport}>
+                                        {loading ? <span>Loading</span> : !meemaw ? <span>Initialising...</span> : <span>Export Private Key</span>}
                                     </button>
                                     <p>{privateKey}</p>
                                     <p>{warning}</p>
