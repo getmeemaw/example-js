@@ -36,7 +36,7 @@ export default function Tx() {
 
         const initializeMeemaw = async () => {
             try {
-                const meemaw = await Meemaw.init('http://localhost:8421/test');
+                const meemaw = await Meemaw.init('http://localhost:8421');
                 // const meemaw = await Meemaw.init('https://getmeemaw.co/YOUR-CUSTOM-PATH', 'https://getmeemaw.com/static/1.2.0.meemaw.wasm');
 
                 setMeemaw(meemaw);
