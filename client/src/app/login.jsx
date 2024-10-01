@@ -56,7 +56,7 @@ export default function Login() {
     <main>
       <div>
         <Image
-          src="https://influchain.fra1.digitaloceanspaces.com/meemaw/static/img/logo/grandma.webp"
+          src="https://getmeemaw.com/static/img/logo/grandma.webp"
           alt="Meemaw Logo"
           width={180}
           height={180}

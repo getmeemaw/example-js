@@ -1,12 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    reactStrictMode: false,
     images: {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'influchain.fra1.digitaloceanspaces.com',
+                hostname: 'getmeemaw.com',
                 port: '',
-                pathname: '/meemaw/static/**',
+                pathname: '/static/**',
             },
         ],
     },

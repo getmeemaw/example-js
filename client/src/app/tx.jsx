@@ -36,8 +36,8 @@ export default function Tx() {
 
         const initializeMeemaw = async () => {
             try {
-                const meemaw = await Meemaw.init('http://localhost:8421');
-                // const meemaw = await Meemaw.init('https://getmeemaw.co/YOUR-CUSTOM-PATH', 'https://getmeemaw.com/static/1.2.0.meemaw.wasm');
+                // const meemaw = await Meemaw.init('http://localhost:8421');
+                const meemaw = await Meemaw.init('https://getmeemaw.co/YOUR-PROJECT-URL', 'https://getmeemaw.com/1.2.0.meemaw.wasm');
 
                 setMeemaw(meemaw);
                 console.log("Meemaw properly initialised.")
@@ -177,7 +177,7 @@ export default function Tx() {
 
         console.log("recipient:", recipient);
 
-        const web3 = new Web3(new Web3.providers.HttpProvider("https://eth-sepolia.g.alchemy.com/v2/e7OD1JhrtDJlDEowtp7L6cSZNbgmbjUf"));
+        const web3 = new Web3(new Web3.providers.HttpProvider("YOUR-JSON-RPC-API-URL"));
             
         const chainId = await web3.eth.getChainId();
         const nonce = await web3.eth.getTransactionCount(wallet.From())
@@ -267,7 +267,7 @@ export default function Tx() {
         <main>
         <div>
             <Image
-            src="https://influchain.fra1.digitaloceanspaces.com/meemaw/static/img/logo/grandma.webp"
+            src="https://getmeemaw.com/static/img/logo/grandma.webp"
             alt="Meemaw Logo"
             width={180}
             height={180}
